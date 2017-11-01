@@ -113,5 +113,27 @@ describe('Decorator RouteData', () => {
        it('should have set the data', () => {
            comp.contacts$.should.exist;
        });
-    });
+   });
+
+   describe('With useSnapshot', () => {
+       beforeEach(() => {
+           comp.route = {
+               snapshot: {
+                   data: {},
+                   parent: {
+                       data: {
+                           contacts: {}
+                       }
+                   }
+               }
+           };
+
+           RouteData('contacts', true)(comp, 'contacts', 0);
+           comp.ngOnInit();
+       });
+
+       it('should have found the contacts', () => {
+           should.exist(comp.contacts);
+       })
+   });
 });

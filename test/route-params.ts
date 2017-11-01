@@ -114,4 +114,26 @@ describe('Decorator RouteParams', () => {
             comp.contactId$.should.exist;
         });
     });
+
+   describe('With useSnapshot', () => {
+       beforeEach(() => {
+           comp.route = {
+               snapshot: {
+                   params: {},
+                   parent: {
+                       params: {
+                           contactId: {}
+                       }
+                   }
+               }
+           };
+
+           RouteParams('contactId', true)(comp, 'contactId', 0);
+           comp.ngOnInit();
+       });
+
+       it('should have found the contact id', () => {
+           should.exist(comp.contactId);
+       })
+   });
 });

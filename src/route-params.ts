@@ -1,13 +1,18 @@
-export const RouteParams = function (annotation?: any): any {
+export const RouteParams = function (annotation?: any, useSnapshot?: boolean): any {
     return (target: any, key: string, index: number): void => {
         const ngOnInit = target.ngOnInit;
 
         target.ngOnInit = function (): void {
-            let parent = this.route,
+            let parent = useSnapshot ? this.route.snapshot : this.route,
                 params = null;
 
             while (parent && !params) {
-                params = parent.params.map(d => d[annotation || key.replace(/\$$/, '')]);
+                const targetKeyName = annotation || key.replace(/\$$/, '');
+                if (useSnapshot) {
+                    params = parent.params[targetKeyName];
+                } else {
+                    params = parent.params.map(d => d[targetKeyName]);
+                }
                 parent = parent.parent;
             }
 
