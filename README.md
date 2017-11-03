@@ -56,7 +56,7 @@ the decorator belongs to (ignoring the '$')
 
 ### Getting params/data as strings instead of Observables
 
-If you want, you can get the route params or data as a string instead of as an observable of a string. This can be done using the *config* argument on each decorator. Unlike the route snapshot, though, the param or data value will automatically update itself whenever the param or data value changes.
+If you want, you can get the route params or data as a string instead of as an observable of a string. This can be done using the `config` argument on each decorator. Unlike the route snapshot, though, the param or data value will automatically update itself whenever the param or data value changes.
 
 ```typescript
 @RouteData('contacts', { observable: false }) contacts: Contact[]
