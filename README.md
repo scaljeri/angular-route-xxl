@@ -66,3 +66,4 @@ If you know you won't need to subscribe to changes in the route data or params, 
 
 ### Contributors
    + @dirkluijk - Suggested to solve the issue using decorators
+   + @superMDguy - Added `@RouteQueryParams()` and option to return string instead of Observable
