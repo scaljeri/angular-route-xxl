@@ -1,9 +1,11 @@
 import { expect } from 'chai';
-import { RouteParams } from '../src/route-params';
+import { RouteParams } from '../src/route-decorators';
 import 'mocha';
 import * as sinonChai from 'sinon-chai';
 import * as sinon from 'sinon';
 import * as chai from 'chai';
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/Rx'
 
 const should = chai.should();
 chai.use(sinonChai);
@@ -115,25 +117,22 @@ describe('Decorator RouteParams', () => {
         });
     });
 
-   describe('With useSnapshot', () => {
-       beforeEach(() => {
-           comp.route = {
-               snapshot: {
-                   params: {},
-                   parent: {
-                       params: {
-                           contactId: {}
-                       }
-                   }
-               }
-           };
+    describe('With { observable: false }', () => {
+        beforeEach(() => {
+            comp.route = {
+                params: Observable.of({ contactId: '123' })
+            };
 
-           RouteParams('contactId', true)(comp, 'contactId', 0);
-           comp.ngOnInit();
-       });
+            RouteParams('contactId', { observable: false })(comp, 'contactId', 0);
+            comp.ngOnInit();
+        });
 
-       it('should have found the contact id', () => {
-           should.exist(comp.contactId);
-       })
-   });
+        it('should have found the contact id', () => {
+            should.exist(comp.contactId);
+        })
+
+        it('should have correct value for contact id', () => {
+            should.equal(comp.contactId, '123');
+        })
+    });
 });
