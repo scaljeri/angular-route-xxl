@@ -60,7 +60,7 @@ If you want, you can get the route params or data as a string instead of as an o
 
 ```typescript
 @RouteData('contacts', { observable: false }) contacts: Contact[]
-@RouteParams('contactId') contactId$: Observable<string>;
+@RouteParams('contactId', { observable: false }) contactId: string;
 @RouteQueryParams('search', { observable: false }) search: string
 ```
 
