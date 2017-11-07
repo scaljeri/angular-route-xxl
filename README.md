@@ -54,14 +54,14 @@ the decorator belongs to (ignoring the '$')
 @RouteQueryParams() search$: Observable<string>;
 ```
 
-### Route snapshot
+### Getting params/data as strings instead of Observables
 
-If you know you won't need to subscribe to changes in the route data or params, it may be easier to use data, params, and query params from the [route snapshot](https://angular.io/api/router/ActivatedRouteSnapshot). This can be done using the *useSnapshot* argument on each decorator.
+If you want, you can get the route params or data as a string instead of as an observable of a string. This can be done using the `config` argument on each decorator. Unlike the route snapshot, though, the param or data value will automatically update itself whenever the param or data value changes.
 
 ```typescript
-@RouteData('contacts', true) contacts: Contact[]
-@RouteParams('contactId', false) contactId$: Observable<string>;
-@RouteQueryParams('search', true) search: string
+@RouteData('contacts', { observable: false }) contacts: Contact[]
+@RouteParams('contactId', { observable: false }) contactId: string;
+@RouteQueryParams('search', { observable: false }) search: string
 ```
 
 ### Contributors
