@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import { RouteQueryParams } from '../src/route-decorators';
+import { RouteQueryParams } from '../index';
 import 'mocha';
 import * as sinonChai from 'sinon-chai';
 import * as sinon from 'sinon';
 import * as chai from 'chai';
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/Rx'
+import { Observable } from 'rxjs/Rx'
+import 'rxjs/add/observable/of';
 
 const should = chai.should();
 chai.use(sinonChai);

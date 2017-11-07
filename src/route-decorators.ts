@@ -1,8 +1,10 @@
+import 'rxjs/add/operator/map';
+
 export interface RouteXxlConfig {
     observable?: boolean;
 }
 
-function routeDecoratorFactory(routePropertyName) {
+export function routeDecoratorFactory(routePropertyName) {
     return function (annotation?: string, config?: RouteXxlConfig): any {
         return (target: any, key: string, index: number): void => {
             const ngOnInit = target.ngOnInit;
@@ -33,7 +35,3 @@ function routeDecoratorFactory(routePropertyName) {
         };
     };
 }
-
-export const RouteData = routeDecoratorFactory('data');
-export const RouteParams = routeDecoratorFactory('params');
-export const RouteQueryParams = routeDecoratorFactory('queryParams');
