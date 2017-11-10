@@ -1,35 +1,65 @@
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/combineLatest';
+
+function extractFromRoute(parent, routeProperty, property): Observable<any> | string {
+    let retVal;
+
+    while (parent && !retVal) {
+        retVal = parent[routeProperty].map(d => d[property]);
+
+        parent = parent.parent;
+    }
+
+    return retVal;
+}
+
+function injectValue(target, key, routeValues, args, asObservable): void {
+    if (asObservable !== false) {
+        if (args.length === 1) {
+            target[key] = routeValues[0];
+        } else {
+            target[key] = routeValues.reduce((obj, val, index) => {
+                obj[args[index]] = val;
+
+                return obj;
+            }, {});
+        }
+    } else {
+        Observable.combineLatest(...routeValues)
+            .subscribe(values => {
+                target[key] = values;
+            });
+    }
+}
 
 export interface RouteXxlConfig {
     observable?: boolean;
 }
 
 export function routeDecoratorFactory(routePropertyName) {
-    return function (annotation?: string, config?: RouteXxlConfig): any {
+    return function (...args: Array<string | RouteXxlConfig>): any {
+        const config = (typeof args[args.length - 1] === 'object' ? args.pop() : {}) as RouteXxlConfig;
+
         return (target: any, key: string, index: number): void => {
             const ngOnInit = target.ngOnInit;
 
+            if (!args.length) {
+                args = [key.replace(/\$$/, '')];
+            }
+
             target.ngOnInit = function (): void {
-                let parent = this.route,
-                    routePropertyValue = null;
+                const routeValues = [];
 
-                while (parent && !routePropertyValue) {
-                    const targetKeyName = annotation || key.replace(/\$$/, '');
-                    routePropertyValue = parent[routePropertyName].map(d => d[targetKeyName]);
+                args.forEach((prop, index) => {
+                    routeValues[index] = extractFromRoute(this.route, routePropertyName, prop);
+                });
 
-                    parent = parent.parent;
-                }
+                injectValue(target, key, routeValues, args, config.observable);
 
-                if (config && !config.observable) {
-                    routePropertyValue.subscribe(val => target[key] = val)
-                } else {
-                    target[key] = routePropertyValue;
-                }
-
-                delete this.ngOnInit;
+                this.ngOnInit = ngOnInit;
                 if (ngOnInit) {
-                    ngOnInit.call(this);
-                    this.ngOnInit = ngOnInit;
+                    this.ngOnInit();
                 }
             };
         };
