@@ -52,10 +52,14 @@ export function routeDecoratorFactory(routeProperty) {
             }
 
             target.ngOnInit = function (): void {
+                if (!this.route) {
+                    throw(`${target.constructor.name} uses the ${routeProperty} @decorator used without a 'route'`);
+                }
+
                 const routes = extractRoutes(this.route, routeProperty);
 
                 extractValues(routes, args, config, values => {
-                    target[key] = values;
+                    this[key] = values;
                 });
 
                 this.ngOnInit = ngOnInit;

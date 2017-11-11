@@ -53,24 +53,49 @@ describe('RouteData', () => {
 
     describe.only('Nested parents', () => {
         beforeEach(() => {
-            let data = {map: cb => cb({})};
+            let data =
 
             comp.route = {
-                data,
+                data: Observable.of({ fooId: 1 }),
                 parent: {
-                    data,
+                    data: Observable.of({ barId: 2 }),
                     parent: {
-                        data: {map: cb => cb({contacts: {}})}
+                        data: Observable.of({ bazId: 3 })
                     }
                 }
             };
 
-            RouteData('contacts')(comp, 'data$', 0);
+            RouteData('fooId')(comp, 'x$', 0);
+            RouteData('barId')(comp, 'y$', 0);
+            RouteData('bazId')(comp, 'z$', 0);
             comp.ngOnInit();
         });
 
-        it('should have found the data', () => {
-            should.exist(comp.data$);
+        it('should have set the observables', () => {
+            comp.x$.should.be.instanceOf(Observable);
+            comp.y$.should.be.instanceOf(Observable);
+            comp.z$.should.be.instanceOf(Observable);
+        });
+
+        it('should resolve the current route', (done) => {
+            comp.x$.subscribe(data => {
+                data.should.equals(1);
+                done();
+            });
+        });
+
+        it('should resolve the first parent', (done) => {
+            comp.y$.subscribe(data => {
+                data.should.equals(2);
+                done();
+            });
+        });
+
+        it('should resolve the second parent', (done) => {
+            comp.z$.subscribe(data => {
+                data.should.equals(3);
+                done();
+            });
         });
 
         it('should have called ngOnInit', () => {
