@@ -2,34 +2,37 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/combineLatest';
 
-function extractFromRoute(parent, routeProperty, property): Observable<any> | string {
-    let retVal;
+function extractRoutes(parent, routeProperty): Observable<any>[] {
+    let routes = [];
 
-    while (parent && !retVal) {
-        retVal = parent[routeProperty].map(d => d[property]);
+    while (parent) {
+        routes.push(parent[routeProperty]);
 
         parent = parent.parent;
     }
 
-    return retVal;
+    return routes;
 }
 
-function injectValue(target, key, routeValues, args, asObservable): void {
-    if (asObservable !== false) {
-        if (args.length === 1) {
-            target[key] = routeValues[0];
-        } else {
-            target[key] = routeValues.reduce((obj, val, index) => {
-                obj[args[index]] = val;
-
-                return obj;
-            }, {});
-        }
-    } else {
-        Observable.combineLatest(...routeValues)
-            .subscribe(values => {
-                target[key] = values;
+function extractValues(routes, args, config, cb): void {
+    const stream$ = Observable.combineLatest(...routes, function () {
+        const values = [].reduce.call(arguments, (obj, route) => {
+            args.forEach(arg => {
+                if (route[arg] !== undefined) {
+                    obj[arg] = route[arg];
+                }
             });
+
+            return obj;
+        }, {});
+
+        return args.length === 1 ? values[args[0]] : values;
+    });
+
+    if (config.observable === false) {
+        stream$.subscribe(cb);
+    } else {
+        cb(stream$);
     }
 }
 
@@ -37,7 +40,7 @@ export interface RouteXxlConfig {
     observable?: boolean;
 }
 
-export function routeDecoratorFactory(routePropertyName) {
+export function routeDecoratorFactory(routeProperty) {
     return function (...args: Array<string | RouteXxlConfig>): any {
         const config = (typeof args[args.length - 1] === 'object' ? args.pop() : {}) as RouteXxlConfig;
 
@@ -49,13 +52,11 @@ export function routeDecoratorFactory(routePropertyName) {
             }
 
             target.ngOnInit = function (): void {
-                const routeValues = [];
+                const routes = extractRoutes(this.route, routeProperty);
 
-                args.forEach((prop, index) => {
-                    routeValues[index] = extractFromRoute(this.route, routePropertyName, prop);
+                extractValues(routes, args, config, values => {
+                    target[key] = values;
                 });
-
-                injectValue(target, key, routeValues, args, config.observable);
 
                 this.ngOnInit = ngOnInit;
                 if (ngOnInit) {
