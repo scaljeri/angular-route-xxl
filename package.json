@@ -15,7 +15,7 @@
     "decorator"
   ],
   "scripts": {
-    "build": "rm -rf bundle && tsc && tsc -d --lib 'es2015' ./index.ts",
+    "build": "rm -rf bundle && tsc && tsc -d --lib 'es2015, dom' ./index.ts",
     "prepublish": "yarn build",
     "test": "mocha -r ts-node/register test/**/*.ts"
   },

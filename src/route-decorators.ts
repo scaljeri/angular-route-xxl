@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/combineLatest';
+import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/map';
 
 function extractRoutes(parent, routeProperty): Observable<any>[] {
@@ -15,19 +16,20 @@ function extractRoutes(parent, routeProperty): Observable<any>[] {
 }
 
 function extractValues(routes, args, config, cb): void {
-    const stream$ = Observable.combineLatest(...routes, function () {
-        const values = [].reduce.call(arguments, (obj, route) => {
-            args.forEach(arg => {
-                if (route[arg] !== undefined) {
-                    obj[arg] = route[arg];
-                }
-            });
+    const stream$ = routes.length === 1 ?
+        routes[0].map(data => data[args[0]]) : Observable.combineLatest(...routes, function () {
+            const values = [].reduce.call(arguments, (obj, route) => {
+                args.forEach(arg => {
+                    if (route[arg] !== undefined) {
+                        obj[arg] = route[arg];
+                    }
+                });
 
-            return obj;
-        }, {});
+                return obj;
+            }, {});
 
-        return args.length === 1 ? values[args[0]] : values;
-    });
+            return args.length === 1 ? values[args[0]] : values;
+        });
 
     if (config.observable === false) {
         stream$.subscribe(cb);

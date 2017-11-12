@@ -4,42 +4,49 @@ import 'mocha';
 import * as sinonChai from 'sinon-chai';
 import * as sinon from 'sinon';
 import * as chai from 'chai';
-import { Observable } from 'rxjs/Rx'
+import { Observable, Subject } from 'rxjs/Rx'
 import 'rxjs/add/observable/of';
 
 const should = chai.should();
 chai.use(sinonChai);
 
-describe('RouteData', () => {
-    let comp, spy;
+describe.only('RouteData', () => {
+    let comp, spy, route,
+        contacts = {},
+        subjects = [new Subject(), new Subject(), new Subject()];
+
 
     beforeEach(() => {
-        spy = sinon.spy();
+        route = {
+            data: subjects[0].asObservable(),
+            parent: {
+                data: subjects[1].asObservable(),
+                parent: {
+                    data: subjects[2].asObservable(),
+                }
+            }
+        };
 
+        spy = sinon.spy();
         comp = {ngOnInit: spy};
+        comp.route = route;
     });
 
     it('should exist', () => {
         expect(RouteData).should.exist;
     });
 
-    describe('One parent', () => {
-        let stream$ = Observable.of({contacts: {id: 1}});
-
+    describe('Observables', () => {
         beforeEach(() => {
-            comp.route = {
-                data: stream$
-            };
+            RouteData('bar')(comp, 'bar$', 0);
+            RouteData('foo', 'baz')(comp, 'foo$', 0);
+            RouteData()(comp, 'moz$', 0);
 
-            RouteData('contacts')(comp, 'data$', 0);
             comp.ngOnInit();
         });
 
-        it('should have found the data', (done) => {
-            comp.data$.subscribe(val => {
-                val.should.eql({id: 1});
-                done();
-            });
+        it('should not have a value set yet', () => {
+            should.not.exist(comp.contacts);
         });
 
         it('should have called ngOnInit', () => {
@@ -51,20 +58,34 @@ describe('RouteData', () => {
         });
     });
 
-    describe.only('Nested parents', () => {
+    describe('Strings', () => {
         beforeEach(() => {
-            let data =
+            RouteData('bar', {observable: false})(comp, 'bar$', 0);
+            RouteData('foo', 'moz', {observable: false})(comp, 'foo$', 0);
+            RouteData({observable: false})(comp, 'baz$', 0);
 
-            comp.route = {
-                data: Observable.of({ fooId: 1 }),
-                parent: {
-                    data: Observable.of({ barId: 2 }),
-                    parent: {
-                        data: Observable.of({ bazId: 3 })
-                    }
-                }
-            };
+            comp.ngOnInit();
+        });
 
+        it('should not have a value set yet', () => {
+            should.not.exist(comp.contacts);
+        });
+    });
+
+
+
+    describe('Zero nested parents', () => {
+        beforeEach(() => {
+            subjects[0].next({contacts}); // first route
+        });
+
+        it('should have set the data on the component', () => {
+            comp.contacts.should.equals(contacts);
+        });
+    });
+
+    describe('Multiple nested parents', () => {
+        beforeEach(() => {
             RouteData('fooId')(comp, 'x$', 0);
             RouteData('barId')(comp, 'y$', 0);
             RouteData('bazId')(comp, 'z$', 0);
@@ -108,21 +129,17 @@ describe('RouteData', () => {
     });
 
     describe('Without ngOnInit', () => {
+        let stream$ = Observable.of({contacts: {id: 1}});
+
         beforeEach(() => {
+            comp.route = {data: stream$};
             delete comp.ngOnInit;
-            comp.route = {data: {map: cb => cb({contacts: {}})}};
 
             RouteData('contacts')(comp, 'contacts$', 0);
         });
 
         it('should have created ngOnInit', () => {
             comp.ngOnInit.should.exist;
-        });
-
-        it('should inject the data', () => {
-            comp.ngOnInit();
-
-            comp.contacts$.should.exist;
         });
 
         it('should remove the fake ngOnInit', () => {
@@ -132,37 +149,44 @@ describe('RouteData', () => {
         });
     });
 
-    describe('Without params', () => {
-        beforeEach(() => {
-            comp.route = {
-                data: {map: cb => cb({contacts: {}})}
-            };
-
-            RouteData()(comp, 'contacts$', 0);
-            comp.ngOnInit();
-        });
-
-        it('should have set the data', () => {
-            comp.contacts$.should.exist;
-        });
-    });
-
     describe('With { observable: false }', () => {
+        const subject = new Subject();
+
         beforeEach(() => {
             comp.route = {
-                data: Observable.of({contactId: '123'})
+                data: subject.asObservable()
             };
 
-            RouteData('contactId', {observable: false})(comp, 'contactId', 0);
+            RouteData('contacts', {observable: false})(comp, 'contacts');
             comp.ngOnInit();
         });
 
-        it('should have found the contact id', () => {
-            should.exist(comp.contactId);
+        it('should initially be undefined', () => {
+            should.not.exist(comp.contacts);
         });
 
-        it('should have correct value for contact id', () => {
-            should.equal(comp.contactId, '123');
-        })
+        describe('After init', () => {
+            const data = [1, 2, 3];
+
+            beforeEach(() => {
+                subject.next({contacts: data, item: {id: 9}});
+            });
+
+            it('should update on change', () => {
+                comp.contacts.should.equals(data);
+            });
+
+            describe('On change', () => {
+                const data = [4,5,6];
+
+                beforeEach(() => {
+                    subject.next({contacts: data, item: {id: 9}});
+                });
+
+                it('should update on change', () => {
+                    comp.contacts.should.equals(data);
+                });
+            });
+        });
     });
 });
