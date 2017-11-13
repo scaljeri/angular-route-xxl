@@ -55,7 +55,7 @@ export function routeDecoratorFactory(routeProperty) {
 
             target.ngOnInit = function (): void {
                 if (!this.route) {
-                    throw(`${target.constructor.name} uses the ${routeProperty} @decorator used without a 'route'`);
+                    throw(`${target.constructor.name} uses the ${routeProperty} @decorator without a 'route' property`);
                 }
 
                 const routes = extractRoutes(this.route, routeProperty);
