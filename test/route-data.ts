@@ -6,17 +6,17 @@ import * as sinon from 'sinon';
 import * as chai from 'chai';
 import { Observable, Subject } from 'rxjs/Rx'
 import 'rxjs/add/observable/of';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 const should = chai.should();
 chai.use(sinonChai);
 
 describe.only('RouteData', () => {
-    let comp, spy, route,
-        contacts = {},
-        subjects = [new Subject(), new Subject(), new Subject()];
-
+    let comp, spy, route, subjects;
 
     beforeEach(() => {
+        subjects = [new BehaviorSubject(null), new BehaviorSubject(null), new BehaviorSubject(null)];
+
         route = {
             data: subjects[0].asObservable(),
             parent: {
@@ -28,25 +28,26 @@ describe.only('RouteData', () => {
         };
 
         spy = sinon.spy();
-        comp = {ngOnInit: spy};
-        comp.route = route;
+        comp = {route: route, ngOnInit: spy};
     });
 
     it('should exist', () => {
         expect(RouteData).should.exist;
     });
 
-    describe('Observables', () => {
+    describe('As observables', () => {
         beforeEach(() => {
             RouteData('bar')(comp, 'bar$', 0);
-            RouteData('foo', 'baz')(comp, 'foo$', 0);
+            RouteData('foo', 'baz')(comp, 'fb$', 0);
             RouteData()(comp, 'moz$', 0);
 
             comp.ngOnInit();
         });
 
-        it('should not have a value set yet', () => {
-            should.not.exist(comp.contacts);
+        it('should have bind all observables', () => {
+            should.exist(comp.bar$.subscribe);
+            should.exist(comp.fb$.subscribe);
+            should.exist(comp.moz$.subscribe);
         });
 
         it('should have called ngOnInit', () => {
@@ -56,9 +57,41 @@ describe.only('RouteData', () => {
         it('should have restored ngOnInit', () => {
             comp.ngOnInit.should.equals(spy);
         });
+
+        describe('Root data', () => {
+            const bar = {}, fb = {foo: 'foo', baz: 'baz'}, moz = {};
+
+            beforeEach(() => {
+                subjects[0].next({bar}); // first route
+            });
+
+            describe.only('Propagate updates', () => {
+                it('should update the named decorator', () => {
+                    comp.bar$.subscribe(data => data.should.equals(bar));
+                });
+
+                it('should have no interference with other route updates', () => {
+                    subjects[1].next({moz});
+
+                    comp.bar$.subscribe(data => data.should.equals(bar));
+                });
+
+                it('should update the multi-named decorator', () => {
+                    subjects[0].next(fb);
+
+                    comp.fb$.subscribe(data => data.should.eql(fb));
+                });
+
+                it('should update the implicit decorator', () => {
+                    subjects[0].next({moz});
+
+                    comp.moz$.subscribe(data => data.should.equals(moz));
+                });
+            })
+        });
     });
 
-    describe('Strings', () => {
+    describe('As strings', () => {
         beforeEach(() => {
             RouteData('bar', {observable: false})(comp, 'bar$', 0);
             RouteData('foo', 'moz', {observable: false})(comp, 'foo$', 0);
@@ -72,17 +105,6 @@ describe.only('RouteData', () => {
         });
     });
 
-
-
-    describe('Zero nested parents', () => {
-        beforeEach(() => {
-            subjects[0].next({contacts}); // first route
-        });
-
-        it('should have set the data on the component', () => {
-            comp.contacts.should.equals(contacts);
-        });
-    });
 
     describe('Multiple nested parents', () => {
         beforeEach(() => {
@@ -177,7 +199,7 @@ describe.only('RouteData', () => {
             });
 
             describe('On change', () => {
-                const data = [4,5,6];
+                const data = [4, 5, 6];
 
                 beforeEach(() => {
                     subject.next({contacts: data, item: {id: 9}});

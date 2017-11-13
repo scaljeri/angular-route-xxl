@@ -20,7 +20,7 @@ function extractValues(routes, args, config, cb): void {
         routes[0].map(data => data[args[0]]) : Observable.combineLatest(...routes, function () {
             const values = [].reduce.call(arguments, (obj, route) => {
                 args.forEach(arg => {
-                    if (route[arg] !== undefined) {
+                    if (route && route[arg] !== undefined) {
                         obj[arg] = route[arg];
                     }
                 });
