@@ -72,13 +72,14 @@ Above, each route value is injected into its own property on the component. But 
 to merge them all into a single object
 
 ```typescript
-    @RouteParams('userId', 'itemId', 'messageId') params; // Usage: this.params.itemId
+@RouteParams('userId', 'itemId', 'messageId', {observable: false}) params;
+// Usage: this.params.itemId   
 ```
 
 or
 
 ```typescript
-    @RouteParams('userId', 'itemId', 'messageId', {observable: false}) params$;
+@RouteParams('userId', 'itemId', 'messageId') params$; 
 ```
 
 This can be used for all three decorators.
