@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/combineLatest';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/map';
+import { of } from 'rxjs/observable/of';
+import { combineLatest } from 'rxjs/observable/combineLatest';
 
 function extractRoutes(parent, routeProperty): Observable<any>[] {
     let routes = [];
@@ -16,9 +15,8 @@ function extractRoutes(parent, routeProperty): Observable<any>[] {
 }
 
 function extractValues(routes, args, config, cb): void {
-    const stream$ = routes.length === 1 ?
-        routes[0].map(data => data[args[0]]) : Observable.combineLatest(...routes, function () {
-            const values = [].reduce.call(arguments, (obj, route) => {
+    const stream$ = combineLatest(of(null), ...routes, (...routeValues) => {
+            const values = routeValues.reduce((obj, route) => {
                 args.forEach(arg => {
                     if (route && route[arg] !== undefined) {
                         obj[arg] = route[arg];
@@ -58,7 +56,7 @@ export function routeDecoratorFactory(routeProperty) {
                     throw(`${target.constructor.name} uses the ${routeProperty} @decorator without a 'route' property`);
                 }
 
-                const routes = extractRoutes(this.route, routeProperty);
+                const routes = routeProperty === 'queryParams' ? [this.route.queryParams] : extractRoutes(this.route, routeProperty);
 
                 extractValues(routes, args, config, values => {
                     this[key] = values;
