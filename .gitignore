@@ -7,3 +7,4 @@ index.d.ts
 .nyc_output/
 coverage/
 yarn-error.log
+.coveralls.yml

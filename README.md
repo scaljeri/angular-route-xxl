@@ -4,6 +4,8 @@ data, route parameters and query parameters values respectively using the `Activ
 Its only requirement is that the `ActivatedRoute` is injected in the component's constructor as `route`
 
 [![CircleCI](https://circleci.com/gh/scaljeri/angular-route-xxl.svg?style=svg)](https://circleci.com/gh/scaljeri/angular-route-xxl)
+[![Coverage Status](https://coveralls.io/repos/github/scaljeri/angular-route-xxl/badge.svg?branch=multiple-values)](https://coveralls.io/github/scaljeri/angular-route-xxl?branch=multiple-values)
+[![GitHub issues](https://img.shields.io/github/issues/scaljeri/angular-route-xxl.svg?style=plastic)](https://github.com/scaljeri/angular-route-xxl/issues)
 
 ### Without @RouteData / @RouteParams / @RouteQueryParams
 

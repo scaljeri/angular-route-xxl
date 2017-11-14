@@ -15,9 +15,10 @@
     "decorator"
   ],
   "scripts": {
-    "build": "rm -rf bundle && tsc && tsc -d --lib 'es2015, dom' ./index.ts",
+    "build": "rm -rf bundle && ./node_modules/.bin/tsc && ./node_modules/.bin/tsc -d --lib 'es2015, dom' ./index.ts",
     "prepublish": "yarn build",
-    "test": "nyc mocha"
+    "test": "./node_modules/.bin/nyc mocha",
+    "coveralls": "./node_modules/.bin/coveralls < coverage/lcov.info"
   },
   "nyc": {
     "include": [
@@ -31,6 +32,7 @@
     ],
     "reporter": [
       "text-summary",
+      "lcov",
       "html"
     ],
     "sourceMap": true,
@@ -40,7 +42,9 @@
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.43",
     "chai": "^4.1.2",
+    "coveralls": "^3.0.0",
     "mocha": "^4.0.1",
+    "nyc": "^11.3.0",
     "rxjs": "^5.5.2",
     "sinon": "^4.0.1",
     "sinon-chai": "^2.14.0",
