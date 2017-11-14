@@ -1,13 +1,7 @@
-import 'mocha';
-import * as sinonChai from 'sinon-chai';
-import * as chai from 'chai';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { of } from 'rxjs/observable/of';
 
-const should = chai.should();
-chai.use(sinonChai);
-
-export function specs(RouteQueryParams) {
+export function specs(RouteQueryParams, should) {
     describe('RouteQueryParams', () => {
         let comp, subject, route;
 

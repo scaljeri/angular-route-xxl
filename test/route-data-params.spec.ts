@@ -1,16 +1,8 @@
-import { expect } from 'chai';
-import 'mocha';
-import * as sinonChai from 'sinon-chai';
-import * as sinon from 'sinon';
-import * as chai from 'chai';
-import { Observable } from 'rxjs/Rx'
+import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import 'rxjs/add/observable/of';
+import * as sinon from 'sinon';
 
-const should = chai.should();
-chai.use(sinonChai);
-
-export function specs(RouteData, property) {
+export function specs(RouteData, property, should) {
     describe('RouteData', () => {
         const bar = {}, fb = {foo: 'foo', baz: 'baz'}, moz = {};
 
@@ -34,7 +26,7 @@ export function specs(RouteData, property) {
         });
 
         it('should exist', () => {
-            expect(RouteData).should.exist;
+            should.exist(RouteData);
         });
 
         describe('As observables', () => {
