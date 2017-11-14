@@ -3,3 +3,7 @@ node_modules
 bundle
 *.js
 index.d.ts
+.DS_Store
+.nyc_output/
+coverage/
+yarn-error.log

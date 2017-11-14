@@ -17,7 +17,24 @@
   "scripts": {
     "build": "rm -rf bundle && tsc && tsc -d --lib 'es2015, dom' ./index.ts",
     "prepublish": "yarn build",
-    "test": "mocha -r ts-node/register test/**/*.ts"
+    "test": "nyc mocha"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",
