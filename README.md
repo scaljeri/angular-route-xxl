@@ -67,6 +67,22 @@ to the decorator
 
 Unlike the route snapshot, these values are automatically updated whenever the url changes.
 
+### Multiple arguments
+Above, each route value is injected into its own property on the component. But it is also possible
+to merge them all into a single object
+
+```typescript
+    @RouteParams('userId', 'itemId', 'messageId') params;
+```
+
+or
+
+```typescript
+    @RouteParams('userId', 'itemId', 'messageId', {observable: false}) params$;
+```
+
+This can be used for all three decorators.
+
 ### Contributors
    + @dirkluijk - Suggested to solve the issue using decorators
    + @superMDguy - Added `@RouteQueryParams()` and an option to return actual values instead of Observables
