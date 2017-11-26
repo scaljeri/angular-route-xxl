@@ -2,18 +2,18 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as sinon from 'sinon';
 
+import * as helper from './helpers';
+
 export function specs(RouteData, property, should) {
-    describe('RouteData', () => {
+    describe.only('RouteData', () => {
         const bar = {}, fb = {foo: 'foo', baz: 'baz'}, moz = {};
 
-        let Comp, comp, spy, route, subjects;
+        let instances, Comp, comp, spy, route, subjects;
 
         beforeEach(() => {
-            spy = sinon.spy();
+            ({instances, Comp, route, spy} = helper.setup(property));
 
-            Comp = function(route) {
-                this.route = route;
-            };
+            /*
             Comp.prototype.ngOnInit = spy;
 
             subjects = [new BehaviorSubject(null), new BehaviorSubject(null), new BehaviorSubject(null)];
@@ -27,8 +27,9 @@ export function specs(RouteData, property, should) {
                     }
                 }
             };
+            */
 
-            comp = new Comp(route);
+            comp = instances[0];
         });
 
         it('should exist', () => {
@@ -60,7 +61,7 @@ export function specs(RouteData, property, should) {
 
             describe('Root route only', () => {
                 beforeEach(() => {
-                    subjects[0].next({bar});
+                    helper.updateRoute(0, {bar});
                 });
 
                 describe('Propagate updates', () => {
@@ -72,19 +73,19 @@ export function specs(RouteData, property, should) {
                     });
 
                     it('should have no interference with other route updates', () => {
-                        subjects[1].next({moz});
+                        helper.updateRoute(1, {moz});
 
                         comp.bar$.subscribe(data => data.should.equals(bar));
                     });
 
                     it('should update the multi-named decorator', () => {
-                        subjects[0].next(fb);
+                        helper.updateRoute(0, fb);
 
                         comp.fb$.subscribe(data => data.should.eql(fb));
                     });
 
                     it('should update the implicit decorator', () => {
-                        subjects[0].next({moz});
+                        helper.updateRoute(0, {moz});
 
                         comp.moz$.subscribe(data => data.should.equals(moz));
                     });
@@ -93,9 +94,9 @@ export function specs(RouteData, property, should) {
 
             describe('Nested Routes', () => {
                 beforeEach(() => {
-                    subjects[0].next({bar});
-                    subjects[1].next(fb);
-                    subjects[2].next({moz});
+                    helper.updateRoute(0, {bar});
+                    helper.updateRoute(1, fb);
+                    helper.updateRoute(2, {moz});
                 });
 
                 describe('Propagate updates', () => {
@@ -141,7 +142,7 @@ export function specs(RouteData, property, should) {
 
             describe('Root route only', () => {
                 beforeEach(() => {
-                    subjects[0].next({bar});
+                    helper.updateRoute(0, {bar});
                 });
 
                 describe('Propagate updates', () => {
@@ -150,19 +151,19 @@ export function specs(RouteData, property, should) {
                     });
 
                     it('should have no interference with other route updates', () => {
-                        subjects[1].next({moz});
+                        helper.updateRoute(1, {moz});
 
                         comp.bar.should.equals(bar);
                     });
 
                     it('should update the multi-named decorator', () => {
-                        subjects[0].next(fb);
+                        helper.updateRoute(0, fb);
 
                         comp.fb.should.eql(fb);
                     });
 
                     it('should update the implicit decorator', () => {
-                        subjects[0].next({moz});
+                        helper.updateRoute(0, {moz});
 
                         comp.moz.should.equals(moz);
                     });
@@ -171,9 +172,9 @@ export function specs(RouteData, property, should) {
 
             describe('Nested Routes', () => {
                 beforeEach(() => {
-                    subjects[0].next({bar});
-                    subjects[1].next(fb);
-                    subjects[2].next({moz});
+                    helper.updateRoute(0, {bar});
+                    helper.updateRoute(1, fb);
+                    helper.updateRoute(2, {moz});
                 });
 
                 describe('Propagate updates', () => {

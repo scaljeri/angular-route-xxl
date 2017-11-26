@@ -1,18 +1,19 @@
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
 import { map } from 'rxjs/operators';
 import { combineLatest } from 'rxjs/observable/combineLatest';
+import { Subject } from 'rxjs/Subject';
 
 /**
  * The configuration interface used to configure the decorators
  */
 export interface RouteXxlConfig {
     observable?: boolean;
+    inherit?: boolean;
 }
 
 interface StateItem {
     args: Array<string>;
-    extractor: (route: any, routeProperty: string) => Observable<any>[];
+    extractor: (route: any, routeProperty: string, inherit?: boolean) => Observable<any>;
     maps: { [key: string]: { config: RouteXxlConfig, args: Array<string> } };
     stream$?: Observable<any>;
 }
@@ -21,13 +22,14 @@ interface State {
     types: { [key: string]: StateItem };
     ngOnInit: () => void;
     counter: number;
+    tunnel: Subject<any>;
 
 }
 
 interface StateConfig {
     args: Array<string>
     config: RouteXxlConfig;
-    extractor: () => Observable<any>[];
+    extractor: () => Observable<any>;
     key: string;
     routeProperty: string;
 }
@@ -46,15 +48,21 @@ interface FakeNgOnInit {
  * @param {string} routeProperty
  * @returns {Observable<Data | Params>[]}
  */
-function extractRoutes(parent: any, routeProperty: string): Observable<any>[] {
+function extractRoutes(parent: any, routeProperty: string, inherit = false): Observable<any> {
     const routes = [];
+
+    if (inherit) {
+        while (parent.firstChild) {
+            parent = parent.firstChild;
+        }
+    }
 
     while (parent) {
         routes.push(parent[routeProperty]);
         parent = parent.parent;
     }
 
-    return routes;
+    return routes.length === 1 ? routes[0] : combineLatest(...routes);
 }
 
 /**
@@ -67,22 +75,22 @@ function extractRoutes(parent: any, routeProperty: string): Observable<any>[] {
  * @param {RouteConfigXxl} config the decorator's configuration object
  * @param {(Observable<any> | any) => void} cb callback function receiving the final observable or the actual values as its arguments
  */
-function extractValues(args: string[], routes: Observable<any>[]): Observable<{[key: string]: any}> {
-    const stream$ = combineLatest(of(null), ...routes, (...routeValues) => {
-        const values = routeValues.reduce((obj, route) => {
-            args.forEach(arg => {
-                if (route && route[arg] !== undefined) {
-                    obj[arg] = route[arg];
-                }
-            });
+function extractValues(args: string[], stream$: Observable<any>): Observable<any> {
+    return stream$.pipe(
+        map(routeValues => {
+            const values = args.reduce((data, arg) => {
+                routeValues.forEach(values => {
+                    if (values && values[arg]) {
+                        data[arg] = values[arg];
+                    }
+                });
 
-            return obj;
-        }, {});
+                return data;
+            }, {});
 
-        return values;
-    });
-
-    return stream$;
+            return args.length === 1 ? values[args[0]] : values;
+        })
+    );
 }
 
 function buildFakeNgOnInit(ngOnInit: () => void): FakeNgOnInit {
@@ -98,31 +106,25 @@ function buildFakeNgOnInit(ngOnInit: () => void): FakeNgOnInit {
 
             if (state.types.hasOwnProperty(routeProperty)) {
                 if (!item.stream$) {
-                    item.stream$ = extractValues(item.args, item.extractor(this.route, routeProperty));
+                    item.stream$ = item.extractor(this.route, routeProperty, true);
                 }
 
-                for(let key in item.maps) {
-                    const mapItem = item.maps[key];
-                    const stream$ = item.stream$
-                        .pipe(
-                            map(data => {
-                                if (mapItem.args.length === 1) {
-                                    return data[mapItem.args[0]];
-                                } else {
-                                    return mapItem.args.reduce((out, val) => (data[val] ? out[val] = data[val] : 1) && out, {})
-                                }
-                            })
-                        );
-                    if (mapItem.config.observable === false) {
-                        stream$.subscribe(data => {
-                            this[key] = data;
-                        });
+                for (let key in item.maps) {
+                    if (routeProperty === 'tunnel') {
+                        this[key] = state.tunnel;
                     } else {
-                        this[key] = stream$
+                        const mapItem = item.maps[key];
+                        const stream$ = extractValues(mapItem.args, (mapItem.config.inherit ? item.stream$ : item.extractor(this.route, routeProperty)));
+
+                        if (mapItem.config.observable === false) {
+                            stream$.subscribe(data => {
+                                this[key] = data;
+                            });
+                        } else {
+                            this[key] = stream$
+                        }
                     }
                 }
-
-
             }
         }
 
@@ -130,7 +132,7 @@ function buildFakeNgOnInit(ngOnInit: () => void): FakeNgOnInit {
         this.ngOnInit();
     } as FakeNgOnInit;
 
-    fakeNgOnInit._state = {ngOnInit, types: {}, counter: 0} as State;
+    fakeNgOnInit._state = {ngOnInit, types: {}, counter: 0, tunnel: new Subject<any>()} as State;
 
     return fakeNgOnInit;
 }
@@ -184,5 +186,10 @@ export function RouteParams(...args: Array<string | RouteXxlConfig>): PropertyDe
 }
 
 export function RouteQueryParams(...args: Array<string | RouteXxlConfig>): PropertyDecorator {
-    return routeDecoratorFactory('queryParams', args, route => [route.queryParams]);
+    return routeDecoratorFactory('queryParams', args, route => route.queryParams.pipe(map(params => [params])));
+}
+
+export function RouteTunnel(): PropertyDecorator {
+    return routeDecoratorFactory('tunnel', [], () => {
+    });
 }

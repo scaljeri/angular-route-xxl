@@ -9,6 +9,7 @@ that the component has the `ngOnInit` function defined.
 [![GitHub issues](https://img.shields.io/github/issues/scaljeri/angular-route-xxl.svg?style=plastic)](https://github.com/scaljeri/angular-route-xxl/issues)
 
 [Stackblitz demo](https://stackblitz.com/edit/angular-dtexzt)
+[Improved Stackblitz demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
 
 ### Without @RouteData / @RouteParams / @RouteQueryParams
 
