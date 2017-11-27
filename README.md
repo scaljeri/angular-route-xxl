@@ -93,7 +93,9 @@ or
 This can be used for all three decorators.
 
 ### Route Inheritance
-TODO
+If you turn inheritance on, `data` and `params` will behave exactly like `queryParams`, meaning that they
+are globally accessible. In the [demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
+you can see this in action if you click `Inherit Routes`
 
 ### RouteTunnel
 This decorator is different from the other three, it allows you to setup communication between the same components
