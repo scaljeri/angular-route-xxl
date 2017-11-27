@@ -102,23 +102,24 @@ are globally accessible. In the [demo](https://stackblitz.com/edit/angular-route
 you can see this in action if you click `Inherit Routes`
 
 ### RouteTunnel
-This decorator is different from the other three, it allows you to setup communication between the same components
+This decorator is different from the other three, it allows you to setup communication between instances from the same 
+components/class.
 
 For example, consider the following sibling components
 
    <app-foo></app-foo>
    <app-foo></app-foo>
    
-If, for whatever reason you want them to be able to communicate with each other do
+If, for whatever reason, you want them to be able to communicate with each other do
 
     @Component({ ... })
     export class FooComponent implements ngOnInit {
         @RouteTunnel() tunnel$;
         
-        constructor(privaet route: ActivatedRoute) {}
+        constructor(private route: ActivatedRoute) {}
         
         ngOnInit(): void {
-            this.tunnel.subscribe(data => {
+            this.tunnel$.subscribe(data => {
                 if (data.sender !== this) { ... }
             });
         }
@@ -128,7 +129,7 @@ If, for whatever reason you want them to be able to communicate with each other 
         }
     }
 
-But the tunnel-decorator is not limited to sibling components only, it can also go straight through routes!
+The tunnel-decorator is not limited to sibling components only, it can also go straight through routes!
 If you want to see this in action, go to the [demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
 and click a route. The ripple effect is just that!
 
