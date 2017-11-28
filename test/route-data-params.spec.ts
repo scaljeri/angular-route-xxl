@@ -5,7 +5,7 @@ import * as sinon from 'sinon';
 import * as helper from './helpers';
 
 export function specs(RouteData, property, should) {
-    describe.only('RouteData', () => {
+    describe('RouteData', () => {
         const bar = {}, fb = {foo: 'foo', baz: 'baz'}, moz = {};
 
         let instances, Comp, comp, spy, route, subjects;
