@@ -8,8 +8,7 @@ that the component has the `ngOnInit` function defined.
 [![Coverage Status](https://coveralls.io/repos/github/scaljeri/angular-route-xxl/badge.svg?branch=multiple-values)](https://coveralls.io/github/scaljeri/angular-route-xxl?branch=multiple-values)
 [![GitHub issues](https://img.shields.io/github/issues/scaljeri/angular-route-xxl.svg?style=plastic)](https://github.com/scaljeri/angular-route-xxl/issues)
 
-[Stackblitz demo](https://stackblitz.com/edit/angular-dtexzt)
-[Improved Stackblitz demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
+[Stackblitz demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
 
 ### Without @RouteData / @RouteParams / @RouteQueryParams
 
@@ -99,10 +98,10 @@ If you turn inheritance on
     
 `data` and `params` will behave exactly like `queryParams`, meaning that they
 are globally accessible. In the [demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
-you can see this in action if you click `Inherit Routes`
+you can see this in action if you click `Inherit Routes`. This can be used for all three decorators.
 
 ### RouteTunnel
-This decorator is different from the other three, it allows you to setup communication between instances from the same 
+This decorator is different from the other three, it allows you to setup communication between instances of the same 
 components/class.
 
 For example, consider the following sibling components
@@ -112,7 +111,7 @@ For example, consider the following sibling components
    <app-foo></app-foo>
 ```
  
-If, for whatever reason, you want them to be able to communicate with each other do
+If, for whatever reason, you want them to be able to communicate using `@RouteTunnel` do
 
 ```typescript
     @Component({ ... })
@@ -135,7 +134,7 @@ If, for whatever reason, you want them to be able to communicate with each other
 
 The tunnel-decorator is not limited to sibling components only, it can also go straight through routes!
 If you want to see this in action, go to the [demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
-and click a route. The ripple effect is just that!
+and click on a route. The ripple effect is just that!
 
 ### Contributors
    + @dirkluijk - Suggested to solve the issue using decorators
