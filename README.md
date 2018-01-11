@@ -100,6 +100,24 @@ If you turn inheritance on
 are globally accessible. In the [demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
 you can see this in action if you click `Inherit Routes`. This can be used for all three decorators.
 
+### Lettable operators
+This option lets you apply any lettable operator, like `filer` or `map` on the the route data, params and query-params before 
+they propagates to your application. 
+
+For example, if you need to ignore empty query params
+
+```typescript
+@RouteQueryParams('search', { observable: false, pipe: [filter(val => val !== '')] }) search: string;
+```
+
+or if values need to be transformed
+
+```typescript
+@RouteData('count', { observable: false, pipe: [map(val => val * 2) }) count: number;
+```
+
+Because it is an array, multiple lettable operators can be added, and will be executed in that same order.
+
 ### RouteTunnel
 This decorator is different from the other three, it allows you to setup communication between instances of the same 
 components/class.
