@@ -18,11 +18,7 @@ function skipMultiVal(input) {
 
 export function specs(RouteQueryParams, should) {
     describe('Route Pipes', () => {
-        let foos: Foo[],
-            bars: Bar[],
-            spyFoo, spyBar, route, subjects;
-
-        let qp;
+        let foos: Foo[], bars: Bar[], route, subjects, qp;
 
         beforeEach(() => {
             helper.setup();
@@ -51,7 +47,7 @@ export function specs(RouteQueryParams, should) {
             });
 
             it('should have scoped the lettables for multiple values', () => {
-                qp.next({foa: 5, fob: 6}); // should be filter out
+                qp.next({foa: 5, fob: 6});
 
                 foos.forEach(foo => {
                     foo.ab$.subscribe(value => {
@@ -92,7 +88,10 @@ export function specs(RouteQueryParams, should) {
                     {observable: false, pipe: [map(doubleVal), filter(skipVal)]})(helper.Foo.prototype, 'a$', 0);
                 RouteQueryParams('foa', 'fob',
                     {observable: false, pipe: [filter(skipMultiVal)]})(Foo.prototype, 'ab$', 0);
-                RouteQueryParams({observable: false, pipe: [filter(skipVal), map(doubleVal)]})(Foo.prototype, 'foc$', 0);
+                RouteQueryParams({
+                    observable: false,
+                    pipe: [filter(skipVal), map(doubleVal)]
+                })(Foo.prototype, 'foc$', 0);
 
                 ({foos, bars, route, subjects} = helper.build());
                 qp = helper.enableQueryParams(route);
@@ -101,8 +100,8 @@ export function specs(RouteQueryParams, should) {
                 qp.next({foa: 0});//, fob: 0, foc: 0});
             });
 
-            it.only('should use the lettables', () => {
-              qp.next({foa: 3});
+            it('should use the lettables', () => {
+                qp.next({foa: 7});
 
                 foos.forEach(foo => {
                     foo.a$.should.equal(doubleVal(7));
@@ -113,35 +112,25 @@ export function specs(RouteQueryParams, should) {
                 qp.next({foa: 5, fob: 6}); // should be filter out
 
                 foos.forEach(foo => {
-                    foo.ab$.subscribe(value => {
-                        value.should.eql({foa: 5, fob: 6});
-                    });
+                    foo.ab$.should.eql({foa: 5, fob: 6});
                 });
+            });
 
+            it('should filter out specific values', () => {
                 qp.next({foa: 5, fob: 5}); // should be filtered out
+
+
+                foos.forEach(foo => {
+                    foo.ab$.should.eql({});
+                });
             });
 
             it('should keep the order of lettables', () => {
                 qp.next({foc: 7});
 
                 foos.forEach(foo => {
-                    foo.foc$.subscribe(value => {
-                        value.should.equal(doubleVal(7));
-                    });
+                    foo.foc$.should.equal(doubleVal(7));
                 });
-
-                qp.next({foc: 6}); // should be filtered out
-            });
-
-            it('should ignore a value', () => {
-                foos.forEach(foo => {
-                    foo.a$.subscribe(value => {
-                        value.should.equal(doubleVal(8));
-                    });
-                });
-
-                qp.next({foa: 3}); // should be filter out
-                qp.next({foa: 8}); // should pass
             });
         });
     })
