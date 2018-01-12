@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import { combineLatest } from 'rxjs/observable/combineLatest';
-import { map } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 interface XxlPropertyConfig {
@@ -27,6 +27,8 @@ interface XxlStateProperty {
 export interface RouteXxlConfig {
     observable?: boolean;
     inherit?: boolean;
+    map?(x: any): any;
+    filter?(x: any): boolean;
 }
 
 /**
@@ -104,6 +106,9 @@ function replaceNgOnInit(prototype: any): void {
                         // build stream
                         let stream$ = item.extractor(this.route, routeProperty, item.config.inherit);
                         stream$ = extractValues(item.args, stream$);
+
+                        if (item.config.filter) stream$ = stream$.pipe(filter(item.config.filter));
+                        if (item.config.map) stream$ = stream$.pipe(map(item.config.map));
 
                         if (item.config.observable === false) {
                             stream$.subscribe(data => {
