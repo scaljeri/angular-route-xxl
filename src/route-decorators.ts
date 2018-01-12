@@ -26,12 +26,13 @@ interface XxlStateProperty {
 
 export interface RouteXxlConfig {
     observable?: boolean;
+    pipe?: any[];
     inherit?: boolean;
 }
 
 /**
  * Traverses the routes, from the current route all the way up to the
- * root route and stores the for each route data, params or queryParams observable
+ * root route and stores each for the route data, params or queryParams observable
  *
  * @param {ActivatedRoute} parent
  * @param {string} routeProperty
@@ -41,12 +42,14 @@ function extractRoutes(parent: any, routeProperty: string, inherit = false): Obs
     const routes = [];
 
     if (inherit) {
+        // Move up
         while (parent.firstChild) {
             parent = parent.firstChild;
         }
     }
 
     while (parent) {
+        // Move down
         routes.push(parent[routeProperty]);
         parent = parent.parent;
     }
@@ -103,7 +106,12 @@ function replaceNgOnInit(prototype: any): void {
                     } else {
                         // build stream
                         let stream$ = item.extractor(this.route, routeProperty, item.config.inherit);
+
                         stream$ = extractValues(item.args, stream$);
+
+                        if (item.config.pipe) {
+                            stream$ = stream$.pipe(...item.config.pipe);
+                        }
 
                         if (item.config.observable === false) {
                             stream$.subscribe(data => {
