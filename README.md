@@ -154,6 +154,11 @@ The tunnel-decorator is not limited to sibling components only, it can also go s
 If you want to see this in action, go to the [demo](https://stackblitz.com/edit/angular-route-xxl?file=app%2Ffoo-bar%2Ffoo-bar.component.ts)
 and click on a route. The ripple effect is just that!
 
+### Angular 5.2
+Angular now supports [`paramsInheritanceStrategy`](https://blog.angular.io/angular-5-2-now-available-312d1099bd81), it can be set to `always`, meaning child routes will have access to all ancestor parameters 
+and data.
+
+
 ### Contributors
    + @dirkluijk - Suggested to solve the issue using decorators
    + @superMDguy - Added `@RouteQueryParams()` and an option to return actual values instead of Observables
