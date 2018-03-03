@@ -1,6 +1,9 @@
 This library provides four decorators: **@RouteData**, **@RouteParams**, **@RouteQueryParams** and **@RouteTunnel**. The first three 
 extract the resolved data, route parameters and query parameters values respectively using the `ActivatedRoute`. 
 
+IMPORTANT: Only use this library if you're using an angular version below 5.2. For 5.2 and above this library is rewritten and available
+in [angular-xxl](https://github.com/scaljeri/angular-xxl)
+
 All decorators require that the `ActivatedRoute` is injected in the component's constructor as `route` and
 that the component has the `ngOnInit` function defined. 
 
