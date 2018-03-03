@@ -1,6 +1,6 @@
 {
   "name": "angular-route-xxl",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "main": "index.js",
   "types": "index.d.ts",
   "repository": "https://github.com/scaljeri/angular-route-xxl.git",
@@ -67,5 +67,6 @@
     "@angular/core": "^4.0.0"
   },
   "dependencies": {
+    "npm": "^5.7.1"
   }
 }
